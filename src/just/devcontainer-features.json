@@ -14,5 +14,8 @@
             "default": false,
             "description": "Install shell completions and man pages."
         }
-    }
+    },
+    "installsAfter": [
+        "ghcr.io/devcontainers/features/common-utils"
+    ]
 }
