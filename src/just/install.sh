@@ -4,9 +4,22 @@
 
 set -e
 
-LATEST="$(curl -sL https://api.github.com/repos/casey/just/releases/latest | sed -n 's/.*"tag_name": "\([0-9.]*\)".*/\1/p')"
-VERSION="${VERSION:-$LATEST}"
+
+readonly LATEST="$(curl -sL https://api.github.com/repos/casey/just/releases/latest | sed -n 's/.*"tag_name": "\([0-9.]*\)".*/\1/p')"
+
+# Validate and set VERSION
+if [[ "$VERSION" = "latest" ]]; then
+    VERSION="$LATEST"
+elif [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+    # Valid semantic version, use as-is
+    :
+else
+    echo "Unsupported version: $VERSION"
+    exit 1
+fi
+
 INSTALLCOMPLETIONS="${INSTALLCOMPLETIONS:-false}"
+
 
 main() {
     if [ "$(id -u)" -ne 0 ]; then
