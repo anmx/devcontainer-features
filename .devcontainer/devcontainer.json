@@ -12,9 +12,7 @@
                     }
                 ]
             },
-            "extensions": [
-                "mads-hartmann.bash-ide-vscode"
-            ]
+            "extensions": []
         }
     },
     "features": {
