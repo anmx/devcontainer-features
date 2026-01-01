@@ -1,0 +1,21 @@
+{
+    "name": "just",
+    "id": "just",
+    "version": "1.0.0",
+    "description": "just is a handy way to save and run project-specific commands",
+    "options": {
+        "version": {
+            "type": "string",
+            "default": "latest",
+            "description": "Version of just to install from GitHub releases. (E.g. 1.45.0)"
+        },
+        "installCompletions": {
+            "type": "boolean",
+            "default": false,
+            "description": "Install shell completions and man pages."
+        }
+    },
+    "installsAfter": [
+        "ghcr.io/devcontainers/features/common-utils"
+    ]
+}
