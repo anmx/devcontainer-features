@@ -6,6 +6,7 @@ set -e
 
 readonly LATEST="$(curl -sL https://api.github.com/repos/casey/just/releases/latest | sed -n 's/.*"tag_name": "\([0-9.]*\)".*/\1/p')"
 VERSION="${VERSION:-$LATEST}"
+echo $VERSION
 INSTALLCOMPLETIONS="${INSTALLCOMPLETIONS:-false}"
 
 main() {
