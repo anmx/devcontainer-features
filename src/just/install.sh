@@ -4,6 +4,8 @@
 
 set -e
 
+# Install dependencies
+(apt-get update && apt-get install -y --no-install-recommends curl ca-certificates) > /dev/null
 
 LATEST="$(curl -sL https://api.github.com/repos/casey/just/releases/latest | sed -n 's/.*"tag_name": "\([0-9.]*\)".*/\1/p')"
 VERSION="${VERSION:-latest}"
@@ -52,8 +54,6 @@ main() {
         exit 1
         ;;
     esac
-
-    (apt-get update && apt-get install -y --no-install-recommends curl ca-certificates) > /dev/null
 
     local TMP_DIR
     TMP_DIR="$(mktemp -d)"
