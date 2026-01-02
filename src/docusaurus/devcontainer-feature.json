@@ -26,5 +26,5 @@
             "version": "lts"
         }
     },
-    "postStartCommand": "npm --prefix \"${localEnv:DOCUSAURUS_TITLE}\" start"
+    "postStartCommand": "cd ${DOCUSAURUS_TITLE} && npm start"
 }
