@@ -26,5 +26,5 @@
             "version": "lts"
         }
     },
-    "postStartCommand": "npm --prefix \"${DOCUSAURUS_TITLE}\" start"
+    "postStartCommand": "npm --prefix \"${localEnv:DOCUSAURUS_TITLE}\" start"
 }
