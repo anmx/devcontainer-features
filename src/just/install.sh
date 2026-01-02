@@ -2,37 +2,44 @@
 #
 # Description: Installs just, a command runner.
 
-set -e
+set -euo pipefail
+
+cleanup() {
+    if [ -n "${TMP_DIR:-}" ] && [ -d "$TMP_DIR" ]; then
+        rm -rf "$TMP_DIR"
+    fi
+}
+
+trap cleanup EXIT
 
 # Install dependencies
-(apt-get update && apt-get install -y --no-install-recommends curl ca-certificates) > /dev/null
+(apt-get update && apt-get install -y --no-install-recommends curl ca-certificates jq) > /dev/null
 
-LATEST="$(curl -sL https://api.github.com/repos/casey/just/releases/latest | sed -n 's/.*"tag_name": "\([0-9.]*\)".*/\1/p')"
+LATEST="$(curl -sL https://api.github.com/repos/casey/just/releases/latest | jq -r ".tag_name")"
 VERSION="${VERSION:-latest}"
 
 # Validate and set VERSION
 if [[ "$VERSION" = "latest" ]]; then
     VERSION="$LATEST"
-elif [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-    # Valid semantic version, use as-is
-    :
-else
+elif [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
     echo "Unsupported version: $VERSION"
     exit 1
 fi
 
 INSTALLCOMPLETIONS="${INSTALLCOMPLETIONS:-false}"
 
+_check_dependencies() {
+    for cmd in curl tar gzip install mktemp jq; do
+        if ! command -v "$cmd" >/dev/null 2>&1; then
+            echo "Command not found: $cmd"
+            exit 1
+        fi
+    done
+}
 
-main() {
-    if [ "$(id -u)" -ne 0 ]; then
-        echo "Script must be run as root. Use sudo, su, or add \"USER root\" to your Dockerfile before running this script."
-        exit 1
-    fi
-
+_get_platform_info() {
     local OS
     OS="$(uname -s)"
-
     if [ "$OS" != "Linux" ]; then
         echo "Unsupported OS: $OS"
         exit 1
@@ -40,10 +47,14 @@ main() {
 
     local ARCH
     ARCH="$(uname -m)"
+    echo "$ARCH"
+}
 
-    local LIBC
-    LIBC="musl"
+_download_and_install() {
+    local VERSION="$1"
+    local ARCH="$2"
 
+    local LIBC="musl"
     case "$ARCH" in
     aarch64 | x86_64) ;;
     armv7l)
@@ -58,8 +69,7 @@ main() {
     local TMP_DIR
     TMP_DIR="$(mktemp -d)"
 
-    local URL
-    URL="https://github.com/casey/just/releases/download/$VERSION/just-$VERSION-$ARCH-unknown-linux-$LIBC.tar.gz"
+    local URL="https://github.com/casey/just/releases/download/$VERSION/just-$VERSION-$ARCH-unknown-linux-$LIBC.tar.gz"
     echo "Downloading: $URL"
 
     curl -L "$URL" | tar -xz -C "$TMP_DIR"
@@ -71,7 +81,6 @@ main() {
     install "$TMP_DIR/just.1" /usr/local/share/man/man1/
 
     if [ "$INSTALLCOMPLETIONS" = "true" ]; then
-
         install -d /usr/share/bash-completion/completions
         install "$TMP_DIR/completions/just.bash" /usr/share/bash-completion/completions/
         install -d /usr/share/zsh/site-functions
@@ -79,6 +88,26 @@ main() {
     fi
 
     rm -rf "$TMP_DIR"
+}
+
+main() {
+    if [ "$(id -u)" -ne 0 ]; then
+        echo "Script must be run as root. Use sudo, su, or add \"USER root\" to your Dockerfile before running this script."
+        exit 1
+    fi
+
+    if [ -z "${VERSION:-}" ]; then
+        echo "VERSION is not set."
+        exit 1
+    fi
+
+    _check_dependencies
+
+    local ARCH
+    ARCH="$(_get_platform_info)"
+
+    _download_and_install "$VERSION" "$ARCH"
+
     apt-get clean
     rm -rf /var/lib/apt/lists/*
 
