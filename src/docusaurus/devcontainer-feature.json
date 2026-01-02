@@ -26,5 +26,5 @@
             "version": "lts"
         }
     },
-    "postStartCommand": "cd ${DOCUSAURUS_TITLE} && npm start"
+    "postStartCommand": "cd ${DOCUSAURUS_TITLE:-\"Docusaurus\"} && npm start"
 }
