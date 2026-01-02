@@ -8,31 +8,17 @@ cleanup() {
     if [ -n "${TMP_DIR:-}" ] && [ -d "$TMP_DIR" ]; then
         rm -rf "$TMP_DIR"
     fi
+
+    apt-get clean
+    rm -rf /var/lib/apt/lists/*
 }
 
 trap cleanup EXIT
 
-# Install dependencies
-(apt-get update && apt-get install -y --no-install-recommends curl ca-certificates jq) > /dev/null
-
-LATEST="$(curl -sL https://api.github.com/repos/casey/just/releases/latest | jq -r ".tag_name")"
-VERSION="${VERSION:-latest}"
-
-# Validate and set VERSION
-if [[ "$VERSION" = "latest" ]]; then
-    VERSION="$LATEST"
-elif [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-    echo "Unsupported version: $VERSION"
-    exit 1
-fi
-
-INSTALLCOMPLETIONS="${INSTALLCOMPLETIONS:-false}"
-
-_check_dependencies() {
+_meet_dependencies() {
     for cmd in curl tar gzip install mktemp jq; do
         if ! command -v "$cmd" >/dev/null 2>&1; then
-            echo "Command not found: $cmd"
-            exit 1
+            apt-get install -y --no-install-recommends "$cmd" > /dev/null
         fi
     done
 }
@@ -48,6 +34,23 @@ _get_platform_info() {
     local ARCH
     ARCH="$(uname -m)"
     echo "$ARCH"
+}
+
+_get_version_info() {
+    local VERSION
+    VERSION="${VERSION:-latest}"
+
+    local LATEST
+    LATEST="$(curl -sL https://api.github.com/repos/casey/just/releases/latest | jq -r ".tag_name")"
+    # Validate and set VERSION
+    if [ "$VERSION" = "latest" ]; then
+        VERSION="$LATEST"
+    elif [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+        echo "Unsupported version: $VERSION"
+        exit 1
+    fi
+
+    echo "$VERSION"
 }
 
 _download_and_install() {
@@ -96,20 +99,17 @@ main() {
         exit 1
     fi
 
-    if [ -z "${VERSION:-}" ]; then
-        echo "VERSION is not set."
-        exit 1
-    fi
+    _meet_dependencies
 
-    _check_dependencies
+    local VERSION
+    VERSION="$(_get_version_info)"
 
     local ARCH
     ARCH="$(_get_platform_info)"
 
-    _download_and_install "$VERSION" "$ARCH"
+    INSTALLCOMPLETIONS="${INSTALLCOMPLETIONS:-false}"
 
-    apt-get clean
-    rm -rf /var/lib/apt/lists/*
+    _download_and_install "$VERSION" "$ARCH"
 
     echo "Successfully installed just $VERSION"
     just --version
