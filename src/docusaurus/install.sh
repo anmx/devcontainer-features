@@ -11,7 +11,7 @@ DOCUSAURUS_VERSION=${DOCUSAURUS_VERSION:-"latest"}
 # Static variables
 DOCUSAURUS_BASE_PATH="${CODESPACE_VSCODE_FOLDER:-.}"
 CURRENT_PATH="$(pwd)"
-echo "We are here: ${CURRENT_PATH}
+echo "We are here: ${CURRENT_PATH}"
 
 echo "Installing Docusaurus..."
 
@@ -19,6 +19,7 @@ if [[ ! -d "${DOCUSAURUS_BASE_PATH}" ]]; then
 
     mkdir -p "${DOCUSAURUS_BASE_PATH}"
     cd ${DOCUSAURUS_BASE_PATH}
+
     echo "We are here: $(pwd)"
     # Initialize a new Docusaurus project
     npx --yes create-docusaurus@${DOCUSAURUS_VERSION} "${DOCUSAURUS_TITLE}" classic --javascript
