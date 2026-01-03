@@ -30,7 +30,7 @@
         }
     },
     "postStartCommand": {
-        "command": "npm start",
+        "command": "echo \"We are starting from here: $(pwd)\" && npm start",
         "cwd": "${CODESPACE_VSCODE_FOLDER:-.}/${DOCUSAURUS_TITLE:-\"Docusaurus\"}"
     }
 }
