@@ -11,7 +11,7 @@ echo "Installing Docusaurus..."
 if [[ ! -d "${DOCUSAURUS_TITLE}" ]]; then
 
     # Initialize a new Docusaurus project
-    npx --yes create-docusaurus@${DOCUSAURUS_VERSION} ${DOCUSAURUS_TITLE} classic --javascript
+    npx --yes create-docusaurus@${DOCUSAURUS_VERSION} "${DOCUSAURUS_TITLE}" classic --javascript
 
     # Create docs path if it doesn't exist
     if [[ ! -d "${DOCUSAURUS_TITLE}/${DOCUSAURUS_DOCS_PATH}" ]]; then

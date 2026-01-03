@@ -17,7 +17,10 @@
         "DOCUSAURUS_VERSION": {
             "type": "string",
             "default": "latest",
-            "proposals": ["latest", "3.9.2"],
+            "proposals": [
+                "latest",
+                "3.9.2"
+            ],
             "description": "Version of Docusaurus to install."
         }
     },
@@ -26,5 +29,5 @@
             "version": "lts"
         }
     },
-    "postStartCommand": "cd ${DOCUSAURUS_TITLE:-\"Docusaurus\"} && npm start"
+    "postStartCommand": "cd \"${DOCUSAURUS_TITLE}\" && npm start"
 }
