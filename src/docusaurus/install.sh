@@ -24,14 +24,16 @@ if [[ ! -d "${DOCUSAURUS_BASE_PATH}" ]]; then
     # Initialize a new Docusaurus project
     npx --yes create-docusaurus@${DOCUSAURUS_VERSION} "${DOCUSAURUS_TITLE}" classic --javascript
 
+    echo "starting ls for debugging..."
+    ls -al "${CURRENT_PATH}"
+
     # Create docs path if it doesn't exist
     if [[ ! -d "${DOCUSAURUS_BASE_PATH}/${DOCUSAURUS_TITLE}/${DOCUSAURUS_DOCS_PATH}" ]]; then
         echo "Creating Docusaurus docs path \"${DOCUSAURUS_BASE_PATH}/${DOCUSAURUS_TITLE}/${DOCUSAURUS_DOCS_PATH}\""
         mkdir -p "${DOCUSAURUS_BASE_PATH}/${DOCUSAURUS_TITLE}/${DOCUSAURUS_DOCS_PATH}"
     fi
 
-    echo "starting ls for debugging..."
-    ls -al "${CURRENT_PATH}"
+
 fi
 
 echo "Docusaurus installation complete."
