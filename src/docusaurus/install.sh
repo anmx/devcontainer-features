@@ -30,7 +30,7 @@ if [[ ! -d "${DOCUSAURUS_BASE_PATH}" ]]; then
     fi
 
     echo "starting ls for debugging..."
-    ls -al "${CURRENT_PATH}
+    ls -al "${CURRENT_PATH}"
 fi
 
 echo "Docusaurus installation complete."
