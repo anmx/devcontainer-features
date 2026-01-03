@@ -31,6 +31,6 @@
     },
     "postStartCommand": {
         "command": "npm start",
-        "cwd": "/opt/docusaurus/${DOCUSAURUS_TITLE:-\"Docusaurus\"}"
+        "cwd": "${CODESPACE_VSCODE_FOLDER:-.}/${DOCUSAURUS_TITLE:-\"Docusaurus\"}"
     }
 }

@@ -9,7 +9,7 @@ DOCUSAURUS_DOCS_PATH=${DOCUSAURUS_DOCS_PATH:-"docs"}
 DOCUSAURUS_VERSION=${DOCUSAURUS_VERSION:-"latest"}
 
 # Static variables
-DOCUSAURUS_BASE_PATH="/opt/docusaurus"
+DOCUSAURUS_BASE_PATH="${CODESPACE_VSCODE_FOLDER:-.}"
 
 echo "Installing Docusaurus..."
 
