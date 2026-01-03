@@ -15,7 +15,9 @@ echo "Installing Docusaurus..."
 
 if [[ ! -d "${DOCUSAURUS_BASE_PATH}" ]]; then
 
+    mkdir -p "${DOCUSAURUS_BASE_PATH}"
     cd ${DOCUSAURUS_BASE_PATH}
+
     # Initialize a new Docusaurus project
     npx --yes create-docusaurus@${DOCUSAURUS_VERSION} "${DOCUSAURUS_TITLE}" classic --javascript
 
