@@ -31,6 +31,6 @@
     },
     "postStartCommand": {
         "command": "npm start",
-        "cwd": "${DOCUSAURUS_TITLE:-\"Docusaurus\"}"
+        "cwd": "/opt/docusaurus/${DOCUSAURUS_TITLE:-\"Docusaurus\"}"
     }
 }
