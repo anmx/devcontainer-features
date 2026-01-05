@@ -28,9 +28,5 @@
         "ghcr.io/devcontainers/features/node:1": {
             "version": "lts"
         }
-    },
-    "postStartCommand": {
-        "command": "echo \"We are starting from here: $(pwd)\" && ls -alR",
-        "cwd": "${CODESPACE_VSCODE_FOLDER:-.}/${DOCUSAURUS_TITLE:-\"Docusaurus\"}"
     }
 }

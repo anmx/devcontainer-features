@@ -2,38 +2,33 @@
 
 set -e
 
-
-# Dynamic variable with defaults
 DOCUSAURUS_TITLE=${DOCUSAURUS_TITLE:-"Docusaurus"}
 DOCUSAURUS_DOCS_PATH=${DOCUSAURUS_DOCS_PATH:-"docs"}
 DOCUSAURUS_VERSION=${DOCUSAURUS_VERSION:-"latest"}
 
-# Static variables
-DOCUSAURUS_BASE_PATH="${CODESPACE_VSCODE_FOLDER:-.}"
-CURRENT_PATH="$(pwd)"
-echo "We are here: ${CURRENT_PATH}"
-
 echo "Installing Docusaurus..."
 
-if [[ ! -d "${DOCUSAURUS_BASE_PATH}" ]]; then
+if [[ ! -d "${DOCUSAURUS_TITLE}" ]]; then
 
-    mkdir -p "${DOCUSAURUS_BASE_PATH}"
-    cd ${DOCUSAURUS_BASE_PATH}
-
-    echo "We are here: $(pwd)"
     # Initialize a new Docusaurus project
     npx --yes create-docusaurus@${DOCUSAURUS_VERSION} "${DOCUSAURUS_TITLE}" classic --javascript
 
-    echo "starting ls for debugging..."
-    ls -al "${CURRENT_PATH}"
-
     # Create docs path if it doesn't exist
-    if [[ ! -d "${DOCUSAURUS_BASE_PATH}/${DOCUSAURUS_TITLE}/${DOCUSAURUS_DOCS_PATH}" ]]; then
-        echo "Creating Docusaurus docs path \"${DOCUSAURUS_BASE_PATH}/${DOCUSAURUS_TITLE}/${DOCUSAURUS_DOCS_PATH}\""
-        mkdir -p "${DOCUSAURUS_BASE_PATH}/${DOCUSAURUS_TITLE}/${DOCUSAURUS_DOCS_PATH}"
+    if [[ ! -d "${DOCUSAURUS_TITLE}/${DOCUSAURUS_DOCS_PATH}" ]]; then
+        echo "Creating Docusaurus docs path ${DOCUSAURUS_TITLE}/${DOCUSAURUS_DOCS_PATH}"
+        mkdir -p "${DOCUSAURUS_TITLE}/${DOCUSAURUS_DOCS_PATH}"
     fi
 
+    # Update baseUrl in docusaurus.config.js
+    sed -i -E "s|(baseUrl: )([\"\'])([^\"\']*)(\2)(,)?|\1'/${DOCUSAURUS_DOCS_PATH}/'\5|g" "${DOCUSAURUS_TITLE}/docusaurus.config.js"
+fi
 
+# Run Docusaurus in development mode
+if [[ -f "${DOCUSAURUS_TITLE}/docusaurus.config.js" ]]; then
+    (cd "${DOCUSAURUS_TITLE}" && npm run start &)
+else
+    echo "Docusaurus installation failed: docusaurus.config.js not found."
+    exit 1
 fi
 
 echo "Docusaurus installation complete."
