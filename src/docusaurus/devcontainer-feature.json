@@ -1,0 +1,32 @@
+{
+    "name": "docusaurus",
+    "id": "docusaurus",
+    "version": "0.0.1",
+    "description": "Docusaurus is a static site generator for building documentation websites.",
+    "options": {
+        "DOCUSAURUS_TITLE": {
+            "type": "string",
+            "default": "Docusaurus",
+            "description": "Title of the Docusaurus site."
+        },
+        "DOCUSAURUS_DOCS_PATH": {
+            "type": "string",
+            "default": "docs",
+            "description": "Path to the docusaurus docs folder."
+        },
+        "DOCUSAURUS_VERSION": {
+            "type": "string",
+            "default": "latest",
+            "proposals": [
+                "latest",
+                "3.9.2"
+            ],
+            "description": "Version of Docusaurus to install."
+        }
+    },
+    "dependsOn": {
+        "ghcr.io/devcontainers/features/node:1": {
+            "version": "lts"
+        }
+    }
+}
