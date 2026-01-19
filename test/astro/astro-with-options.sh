@@ -8,8 +8,8 @@ set -e
 source dev-container-features-test-lib
 
 # Feature-specific tests
-check "custom project exists" test -d "my-custom-project"
-check "package.json exists" test -f "my-custom-project/package.json"
+check "custom project exists" bash -c "test -d my-custom-project"
+check "package.json exists" bash -c "test -f my-custom-project/package.json"
 check "astro command works" bash -c "cd my-custom-project && npx astro --version"
 
 # Report results
