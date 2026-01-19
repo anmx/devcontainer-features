@@ -1,0 +1,15 @@
+{
+    "astro-with-options": {
+        "image": "mcr.microsoft.com/devcontainers/typescript-node:24-trixie",
+        "features": {
+            "astro": {
+                "version": "latest",
+                "template": "minimal",
+                "project": "my-custom-project",
+                "integrations": "react",
+                "installGlobally": false,
+                "skipProjectCreation": false
+            }
+        }
+    }
+}

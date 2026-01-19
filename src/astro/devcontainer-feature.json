@@ -1,0 +1,44 @@
+{
+    "name": "astro",
+    "id": "astro",
+    "version": "1.0.0",
+    "description": "Astro is a modern static site generator for building fast, content-driven websites.",
+    "options": {
+        "version": {
+            "type": "string",
+            "default": "latest",
+            "description": "Version of astro to install from GitHub releases."
+        },
+        "skipProjectCreation": {
+            "type": "boolean",
+            "default": true,
+            "description": "Skip automatic project creation (only install Astro CLI globally)"
+        },
+        "installGlobally": {
+            "type": "boolean",
+            "default": true,
+            "description": "Install Astro CLI globally in addition to project creation"
+        },
+        "project": {
+            "type": "string",
+            "default": "astro-project",
+            "description": "The name of the Astro project folder to create. This is only used if project creation is not skipped."
+        },
+        "template": {
+            "type": "string",
+            "proposals": ["basics", "blog", "minimal", "starlight"],
+            "default": "basics",
+            "description": "The Astro project template to use. See https://github.com/withastro/astro/tree/main/examples for available templates. This is only used if project creation is not skipped."
+        },
+        "integrations": {
+            "type": "string",
+            "proposals": ["", "db", "markdoc", "mdx", "partytown", "sitemap", "alpinejs", "preact", "react", "solid-js", "svelte", "vue", "cloudflare", "netlify", "node", "vercel"],
+            "default": "",
+            "description": "A space separated list of Astro integrations to add to the project. See https://docs.astro.build/en/guides/integrations-guide/ for integrations. This is only used if project creation is not skipped."
+        },
+    },
+    "installsAfter": [
+        "ghcr.io/devcontainers/features/common-utils",
+        "ghcr.io/devcontainers/features/node"
+    ]
+}
