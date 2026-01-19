@@ -1,0 +1,44 @@
+{
+    "name": "astro",
+    "id": "astro",
+    "version": "1.0.0",
+    "description": "Astro is a modern static site generator for building fast, content-driven websites.",
+    "options": {
+        "version": {
+            "type": "string",
+            "default": "latest",
+            "description": "Version of astro to install from GitHub releases."
+        },
+        "template": {
+            "type": "string",
+            "proposals": ["basic", "blog", "minimal", "starlight"],
+            "default": "basic",
+            "description": "The Astro project template to use. See https://github.com/withastro/astro/tree/main/examples for available templates."
+        },
+        "projectName": {
+            "type": "string",
+            "default": "astro-project",
+            "description": "The name of the Astro project folder to create."
+        },
+        "integrations": {
+            "type": "string",
+            "proposals": ["", "db", "markdoc", "mdx", "partytown", "sitemap", "alinejs", "preact", "react", "solid-js", "svelte", "vue", "cloudflare", "netlify", "node", "vercel"],
+            "default": "",
+            "description": "A space separated list of Astro integrations to add to the project. See https://docs.astro.build/en/guides/integrations-guide/ for integrations."
+        },
+        "skipProjectCreation": {
+            "type": "boolean",
+            "default": false,
+            "description": "Skip automatic project creation (only install Astro CLI globally)"
+        },
+        "installGlobally": {
+            "type": "boolean",
+            "default": false,
+            "description": "Install Astro CLI globally in addition to project creation"
+        }
+    },
+    "installsAfter": [
+        "ghcr.io/devcontainers/features/common-utils",
+        "ghcr.io/devcontainers/features/node"
+    ]
+}
