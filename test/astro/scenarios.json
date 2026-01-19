@@ -6,16 +6,9 @@
                 "version": "latest",
                 "template": "minimal",
                 "project": "my-custom-project",
-                "integrations": "react"
-            }
-        }
-    },
-    "astro-global-install": {
-        "image": "mcr.microsoft.com/devcontainers/typescript-node:24-trixie",
-        "features": {
-            "astro": {
-                "installGlobally": true,
-                "skipProjectCreation": true
+                "integrations": "react",
+                "installGlobally": false,
+                "skipProjectCreation": false
             }
         }
     }
