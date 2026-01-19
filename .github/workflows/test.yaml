@@ -14,10 +14,11 @@ jobs:
             matrix:
                 include:
                     - features: just
-                      baseImage:
-                        - debian:latest
-                        - ubuntu:latest
-                        - mcr.microsoft.com/devcontainers/base:ubuntu
+                      baseImage: debian:latest
+                    - features: just
+                      baseImage: ubuntu:latest
+                    - features: just
+                      baseImage: mcr.microsoft.com/devcontainers/base:ubuntu
                     - features: astro
                       baseImage: mcr.microsoft.com/devcontainers/typescript-node:latest
         steps:
