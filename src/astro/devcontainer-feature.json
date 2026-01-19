@@ -15,7 +15,7 @@
             "default": "basic",
             "description": "The Astro project template to use. See https://github.com/withastro/astro/tree/main/examples for available templates."
         },
-        "projectName": {
+        "project": {
             "type": "string",
             "default": "astro-project",
             "description": "The name of the Astro project folder to create."

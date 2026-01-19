@@ -5,7 +5,7 @@
             "astro": {
                 "version": "latest",
                 "template": "minimal",
-                "projectName": "my-custom-project",
+                "project": "my-custom-project",
                 "integrations": "react"
             }
         }

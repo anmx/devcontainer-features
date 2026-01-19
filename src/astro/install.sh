@@ -59,8 +59,8 @@ if [[ "${SKIPPROJECTCREATION}" == "true" ]]; then
 fi
 
 # Check if project already exists
-if [[ -d "${PROJECT_PATH}" ]]; then
-    echo "WARNING: Project directory '${PROJECT_PATH}' already exists. Skipping creation."
+if [[ -d "${PROJECT}" ]]; then
+    echo "WARNING: Project directory '${PROJECT}' already exists. Skipping creation."
     exit 0
 fi
 
