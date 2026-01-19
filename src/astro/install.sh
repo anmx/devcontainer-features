@@ -14,6 +14,9 @@ INTEGRATIONS="${INTEGRATIONS//,/ }"
 SKIPPROJECTCREATION="${SKIPPROJECTCREATION:-false}"
 INSTALLGLOBALLY="${INSTALLGLOBALLY:-false}"
 
+WORKSPACE_FOLDER="${_REMOTE_WORKSPACE_FOLDER:-/workspace}"
+REMOTE_USER="${_REMOTE_USER:-node}"
+
 # Ensure Node.js is installed
 if ! command -v npm &> /dev/null; then
     echo "ERROR: npm is not installed. Please install Node.js first."
@@ -58,11 +61,16 @@ if [[ "${SKIPPROJECTCREATION}" == "true" ]]; then
     exit 0
 fi
 
-# Check if project already exists
-if [[ -d "${PROJECT}" ]]; then
-    echo "WARNING: Project directory '${PROJECT}' already exists. Skipping creation."
-    exit 0
+PROJECT_PATH="${WORKSPACE_FOLDER}/${PROJECT}"
+# Check if project already exists at the target location
+if [[ -d "${PROJECT_PATH}" ]]; then
+    echo "WARNING: Project directory '${PROJECT_PATH}' already exists. Skipping creation."
+else
+    echo "Creating project directory at '${PROJECT_PATH}'"
+    mkdir -m 755 -p "${PROJECT_PATH}"
 fi
+
+cd "${WORKSPACE_FOLDER}"
 
 # Create Astro project
 echo "Creating Astro project astro project using astro version: ${VERSION}"
@@ -76,6 +84,10 @@ if [[ -n "${INTEGRATIONS}" ]]; then
 fi
 
 npm create "astro@${VERSION}" -- "${CREATE_ARGS[@]}"
+
+# Update permissions to match the remote user
+echo "Updating permissions for ${PROJECT_PATH} to user ${REMOTE_USER}..."
+chown -R "${REMOTE_USER}:${REMOTE_USER}" "${PROJECT_PATH}"
 
 # Verify installation
 cd "${PROJECT}"
