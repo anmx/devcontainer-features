@@ -51,7 +51,7 @@ echo "===================================="
 # Install Astro globally if requested
 if [[ "${INSTALLGLOBALLY}" == "true" ]]; then
     echo "Installing Astro CLI globally..."
-    sudo npm install -g "astro@${VERSION}"
+    npm install -g "astro@${VERSION}"
     echo "Astro CLI installed globally: $(astro --version 2>/dev/null || echo 'version check failed')"
 fi
 
