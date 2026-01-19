@@ -37,7 +37,7 @@ echo "Installing Astro"
 echo "===================================="
 echo "Version: ${VERSION}"
 echo "Template: ${TEMPLATE}"
-echo "Project Name: ${PROJECTNAME}"
+echo "Project Name: ${PROJECT}"
 echo "Skip Project Creation: ${SKIPPROJECTCREATION}"
 echo "Install Globally: ${INSTALLGLOBALLY}"
 if [[ -n "${INTEGRATIONS}" ]]; then
@@ -64,14 +64,20 @@ if [[ -d "${PROJECT}" ]]; then
     exit 0
 fi
 
+# Create Astro project
 echo "Creating Astro project astro project using astro version: ${VERSION}"
-if [[ ! -z "${INTEGRATIONS}" ]]; then
-    echo "Adding integrations: ${INTEGRATIONS}"
-    npm create "astro@${VERSION}" "${PROJECT}" -- --template "${TEMPLATE}" --add "${INTEGRATIONS}" --yes --skip-houston
-else
-    npm create "astro@${VERSION}" "${PROJECT}" -- --template "${TEMPLATE}" --yes --skip-houston
+CREATE_ARGS=("${PROJECT}" "--template" "${TEMPLATE}" "--yes" "--skip-houston")
+
+if [[ -n "${INTEGRATIONS}" ]]; then
+    read -ra INTEGRATION_ARRAY <<< "${INTEGRATIONS}"
+    for integration in "${INTEGRATION_ARRAY[@]}"; do
+        CREATE_ARGS+=("--add" "$integration")
+    done
 fi
 
+npm create "astro@${VERSION}" -- "${CREATE_ARGS[@]}"
+
+# Verify installation
 cd "${PROJECT}"
 if [[ INSTALLED_VERSION=$(npx astro --version 2> /dev/null) ]]; then
     echo "Successfully installed astro $INSTALLED_VERSION in ${PROJECT}"

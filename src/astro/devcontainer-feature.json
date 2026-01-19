@@ -11,8 +11,8 @@
         },
         "template": {
             "type": "string",
-            "proposals": ["basic", "blog", "minimal", "starlight"],
-            "default": "basic",
+            "proposals": ["basics", "blog", "minimal", "starlight"],
+            "default": "basics",
             "description": "The Astro project template to use. See https://github.com/withastro/astro/tree/main/examples for available templates."
         },
         "project": {
@@ -22,7 +22,7 @@
         },
         "integrations": {
             "type": "string",
-            "proposals": ["", "db", "markdoc", "mdx", "partytown", "sitemap", "alinejs", "preact", "react", "solid-js", "svelte", "vue", "cloudflare", "netlify", "node", "vercel"],
+            "proposals": ["", "db", "markdoc", "mdx", "partytown", "sitemap", "alpinejs", "preact", "react", "solid-js", "svelte", "vue", "cloudflare", "netlify", "node", "vercel"],
             "default": "",
             "description": "A space separated list of Astro integrations to add to the project. See https://docs.astro.build/en/guides/integrations-guide/ for integrations."
         },
