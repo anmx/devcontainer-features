@@ -1,0 +1,19 @@
+{
+    "name": "bicep",
+    "id": "bicep",
+    "version": "1.0.0",
+    "description": "Bicep is a domain-specific language (DSL) for deploying Azure resources declaratively.",
+    "options": {
+        "version": {
+            "type": "string",
+            "proposals": [
+                "latest"
+            ],
+            "default": "latest",
+            "description": "The version of the bicep CLI to install."
+        }
+    },
+    "installsAfter": [
+        "ghcr.io/devcontainers/features/common-utils"
+    ]
+}
