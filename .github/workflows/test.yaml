@@ -13,14 +13,18 @@ jobs:
         strategy:
             matrix:
                 include:
+                    - features: astro
+                      baseImage: mcr.microsoft.com/devcontainers/typescript-node:latest
+                    - features: bicep
+                      baseImage: mcr.microsoft.com/devcontainers/base:ubuntu
+                    - features: bicep
+                      baseImage: mcr.microsoft.com/devcontainers/base:debian
                     - features: just
                       baseImage: debian:latest
                     - features: just
                       baseImage: ubuntu:latest
                     - features: just
                       baseImage: mcr.microsoft.com/devcontainers/base:ubuntu
-                    - features: astro
-                      baseImage: mcr.microsoft.com/devcontainers/typescript-node:latest
         steps:
             - uses: actions/checkout@v4
 
@@ -37,6 +41,7 @@ jobs:
             matrix:
                 features:
                     - astro
+                    - bicep
                     - just
         steps:
             - uses: actions/checkout@v4
