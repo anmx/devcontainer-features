@@ -1,0 +1,11 @@
+{
+    "just-with-options": {
+        "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+        "features": {
+            "just": {
+                "version": "1.45.0",
+                "installCompletions": true
+            }
+        }
+    }
+}
