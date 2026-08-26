@@ -75,9 +75,11 @@ main() {
     # Write the API response to a file rather than a shell variable: piping
     # it through echo can mangle backslash escapes (e.g. in the release
     # body), which corrupts the JSON before jq gets to parse it.
+    # -f: fail (non-zero exit) on HTTP errors instead of writing an error
+    # page to disk and silently continuing.
     local RELEASE_JSON_FILE
     RELEASE_JSON_FILE="$(mktemp)"
-    curl -sL "$API_URL" -o "$RELEASE_JSON_FILE"
+    curl -fsSL "$API_URL" -o "$RELEASE_JSON_FILE"
 
     # Surface GitHub API errors (rate limiting, unknown tag, etc.) instead of
     # failing later with a confusing "no asset found" message.
@@ -103,21 +105,55 @@ main() {
     local ASSET_REGEX
     ASSET_REGEX="^just-[0-9.]+-${JUST_ARCH}-unknown-linux-${LIBC}\\.tar\\.gz\$"
 
-    local URL
+    local ASSET_NAME URL
+    ASSET_NAME="$(jq -r --arg re "$ASSET_REGEX" '.assets[]? | select(.name | test($re)) | .name' "$RELEASE_JSON_FILE" | head -n1)"
     URL="$(jq -r --arg re "$ASSET_REGEX" '.assets[]? | select(.name | test($re)) | .browser_download_url' "$RELEASE_JSON_FILE" | head -n1)"
 
-    rm -f "$RELEASE_JSON_FILE"
-
     if [ -z "$URL" ]; then
+        rm -f "$RELEASE_JSON_FILE"
         echo "No release asset found for arch '$JUST_ARCH' (libc '$LIBC') in just $VERSION ($API_URL)"
         exit 1
     fi
 
+    # just publishes a SHA256SUMS asset alongside the binaries on recent
+    # releases. Look it up now (same release metadata, no extra API call)
+    # so the downloaded archive can be verified before it's extracted.
+    local SUMS_URL
+    SUMS_URL="$(jq -r '.assets[]? | select(.name == "SHA256SUMS") | .browser_download_url' "$RELEASE_JSON_FILE" | head -n1)"
+
+    rm -f "$RELEASE_JSON_FILE"
+
     local TMP_DIR
     TMP_DIR="$(mktemp -d)"
+    local ARCHIVE_PATH="$TMP_DIR/$ASSET_NAME"
 
     echo "Downloading: $URL"
-    curl -L "$URL" | tar -xz -C "$TMP_DIR"
+    curl -fsSL "$URL" -o "$ARCHIVE_PATH"
+
+    if [ -n "$SUMS_URL" ]; then
+        local SUMS_PATH="$TMP_DIR/SHA256SUMS"
+        curl -fsSL "$SUMS_URL" -o "$SUMS_PATH"
+
+        local EXPECTED_SHA ACTUAL_SHA
+        EXPECTED_SHA="$(awk -v f="$ASSET_NAME" '$2 == f { print $1; exit }' "$SUMS_PATH")"
+        if [ -z "$EXPECTED_SHA" ]; then
+            rm -rf "$TMP_DIR"
+            echo "ERROR: '$ASSET_NAME' not listed in SHA256SUMS for just $VERSION. Refusing to install an unverifiable binary."
+            exit 1
+        fi
+
+        ACTUAL_SHA="$(sha256sum "$ARCHIVE_PATH" | awk '{ print $1 }')"
+        if [ "$EXPECTED_SHA" != "$ACTUAL_SHA" ]; then
+            rm -rf "$TMP_DIR"
+            echo "ERROR: checksum mismatch for '$ASSET_NAME' (expected $EXPECTED_SHA, got $ACTUAL_SHA). Refusing to install a corrupted or tampered download."
+            exit 1
+        fi
+        echo "Checksum verified for $ASSET_NAME"
+    else
+        echo "WARNING: no SHA256SUMS asset found for just $VERSION; skipping checksum verification."
+    fi
+
+    tar -xzf "$ARCHIVE_PATH" -C "$TMP_DIR"
 
     install -d /usr/local/bin
     install -m 755 "$TMP_DIR/just" /usr/local/bin/
