@@ -1,7 +1,7 @@
 {
     "name": "astro",
     "id": "astro",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "description": "Astro is a modern static site generator for building fast, content-driven websites.",
     "options": {
         "version": {
@@ -62,5 +62,6 @@
     "installsAfter": [
         "ghcr.io/devcontainers/features/common-utils",
         "ghcr.io/devcontainers/features/node"
-    ]
+    ],
+    "postCreateCommand": "/usr/local/share/devcontainer-features/astro/create-project.sh"
 }
