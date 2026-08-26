@@ -5,23 +5,21 @@
 set -e
 
 # Install dependencies
-(apt-get update && apt-get install -y --no-install-recommends curl ca-certificates) > /dev/null
+# jq is used to reliably select the correct release asset and read its
+# browser_download_url from the GitHub API response (see below), rather than
+# assembling the download URL ourselves.
+(apt-get update && apt-get install -y --no-install-recommends curl ca-certificates jq) > /dev/null
 
-LATEST="$(curl -sL https://api.github.com/repos/casey/just/releases/latest | sed -n 's/.*"tag_name": "\([0-9.]*\)".*/\1/p')"
+REPO="casey/just"
 VERSION="${VERSION:-latest}"
+INSTALLCOMPLETIONS="${INSTALLCOMPLETIONS:-false}"
 
-# Validate and set VERSION
-if [[ "$VERSION" = "latest" ]]; then
-    VERSION="$LATEST"
-elif [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-    # Valid semantic version, use as-is
-    :
-else
+# Validate VERSION shape early. The actual existence of the release/tag is
+# verified later against the GitHub API.
+if [[ "$VERSION" != "latest" && ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
     echo "Unsupported version: $VERSION"
     exit 1
 fi
-
-INSTALLCOMPLETIONS="${INSTALLCOMPLETIONS:-false}"
 
 
 main() {
@@ -38,30 +36,87 @@ main() {
         exit 1
     fi
 
-    local ARCH
-    ARCH="$(uname -m)"
+    local RAW_ARCH
+    RAW_ARCH="$(uname -m)"
 
-    local LIBC
-    LIBC="musl"
-
-    case "$ARCH" in
-    aarch64 | x86_64) ;;
+    # Map uname's arch string to the arch token just actually publishes in
+    # its release asset names. These are NOT always identical (e.g. uname
+    # reports "armv7l" but just's assets use "armv7").
+    local JUST_ARCH
+    local LIBC="musl"
+    case "$RAW_ARCH" in
+    x86_64)
+        JUST_ARCH="x86_64"
+        ;;
+    aarch64)
+        JUST_ARCH="aarch64"
+        ;;
     armv7l)
+        JUST_ARCH="armv7"
         LIBC="musleabihf"
         ;;
     *)
-        echo "Unsupported architecture: $ARCH"
+        echo "Unsupported architecture: $RAW_ARCH"
         exit 1
         ;;
     esac
 
+    # Resolve the release metadata from the GitHub API instead of guessing a
+    # download URL. This is more reliable than assembling the URL ourselves,
+    # since it always reflects the actual assets GitHub published for this
+    # release, rather than an assumed naming scheme.
+    local API_URL
+    if [ "$VERSION" = "latest" ]; then
+        API_URL="https://api.github.com/repos/$REPO/releases/latest"
+    else
+        API_URL="https://api.github.com/repos/$REPO/releases/tags/$VERSION"
+    fi
+
+    # Write the API response to a file rather than a shell variable: piping
+    # it through echo can mangle backslash escapes (e.g. in the release
+    # body), which corrupts the JSON before jq gets to parse it.
+    local RELEASE_JSON_FILE
+    RELEASE_JSON_FILE="$(mktemp)"
+    curl -sL "$API_URL" -o "$RELEASE_JSON_FILE"
+
+    # Surface GitHub API errors (rate limiting, unknown tag, etc.) instead of
+    # failing later with a confusing "no asset found" message.
+    local API_ERROR
+    API_ERROR="$(jq -r '.message // empty' "$RELEASE_JSON_FILE")"
+    if [ -n "$API_ERROR" ]; then
+        rm -f "$RELEASE_JSON_FILE"
+        echo "GitHub API error while querying $API_URL: $API_ERROR"
+        exit 1
+    fi
+
+    VERSION="$(jq -r '.tag_name // empty' "$RELEASE_JSON_FILE")"
+    if [ -z "$VERSION" ]; then
+        rm -f "$RELEASE_JSON_FILE"
+        echo "Failed to resolve just release from $API_URL"
+        exit 1
+    fi
+
+    # Match the asset by name (anchored so e.g. "arm" cannot match "armv7",
+    # and "musl" cannot match "musleabihf"), then use the exact
+    # browser_download_url GitHub reports for it, rather than assembling the
+    # download URL ourselves.
+    local ASSET_REGEX
+    ASSET_REGEX="^just-[0-9.]+-${JUST_ARCH}-unknown-linux-${LIBC}\\.tar\\.gz\$"
+
+    local URL
+    URL="$(jq -r --arg re "$ASSET_REGEX" '.assets[]? | select(.name | test($re)) | .browser_download_url' "$RELEASE_JSON_FILE" | head -n1)"
+
+    rm -f "$RELEASE_JSON_FILE"
+
+    if [ -z "$URL" ]; then
+        echo "No release asset found for arch '$JUST_ARCH' (libc '$LIBC') in just $VERSION ($API_URL)"
+        exit 1
+    fi
+
     local TMP_DIR
     TMP_DIR="$(mktemp -d)"
 
-    local URL
-    URL="https://github.com/casey/just/releases/download/$VERSION/just-$VERSION-$ARCH-unknown-linux-$LIBC.tar.gz"
     echo "Downloading: $URL"
-
     curl -L "$URL" | tar -xz -C "$TMP_DIR"
 
     install -d /usr/local/bin
